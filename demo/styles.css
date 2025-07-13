@@ -1,0 +1,109 @@
+/* Global Reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, "Helvetica Neue", sans-serif;
+  background: linear-gradient(135deg, #6EC8FF 0%, #4E8FFF 50%, #60C1FF 100%);
+  color: #ffffff;
+}
+
+/* Title */
+.title {
+  font-size: 32px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+/* Card */
+#appCard {
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(20px);
+  border-radius: 16px;
+  padding: 32px 28px;
+  width: 90%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+/* Inputs & Selects */
+label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  color: #e4eefe;
+}
+
+input[type="text"],
+input[type="number"],
+select {
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  font-size: 15px;
+  margin-bottom: 12px;
+}
+
+select option {
+  color: #000000; /* Ensure readability inside dropdown */
+}
+
+/* Buttons */
+button {
+  cursor: pointer;
+  padding: 12px 16px;
+  font-size: 14px;
+  border: none;
+  border-radius: 12px;
+  background: #4e8fff;
+  color: #ffffff;
+  transition: background 0.2s ease;
+  margin-bottom: 10px;
+}
+
+button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+button:not(:disabled):hover {
+  background: #6ea8ff;
+}
+
+.toggle-more {
+  background: rgba(30, 63, 191, 0.8);
+}
+
+/* Fieldset */
+fieldset {
+  margin-top: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.hidden {
+  display: none;
+}
+
+
+#statusLabel {
+  margin-top: 12px;
+  font-size: 16px;
+  font-weight: 500;
+} 

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simultaneous Translator WebSocket</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+    <h1 class="title">SIMULTANEOUS TRANSLATION</h1>
+    <div id="appCard">
+    <div>
+        <label for="wsUrlInput">WebSocket URL:</label>
+        <input type="text" id="wsUrlInput" value="ws://localhost:8080">
+    </div>
+    <div>
+        <label for="sourceLangSelect">Source Language:</label>
+        <select id="sourceLangSelect">
+            <option value="">Auto Detect</option>
+            <option value="TR">Turkish</option>
+            <option value="DE">German</option>
+            <option value="EN">English</option>
+            <option value="ES">Spanish</option>
+            <option value="FR">French</option>
+            <option value="IT">Italian</option>
+            <option value="JA">Japanese</option>
+            <option value="KO">Korean</option>
+            <option value="NL">Dutch</option>
+            <option value="PT">Portuguese</option>
+            <option value="RU">Russian</option>
+            <option value="VI">Vietnamese</option>
+            <option value="ZH">Chinese</option>
+        </select>
+    </div>
+    <div>
+        <label for="targetLangSelect">Target Language:</label>
+        <select id="targetLangSelect" required>
+            <option value="EN">English</option>
+            <option value="TR">Turkish</option>
+            <option value="DE">German</option>
+            <option value="ES">Spanish</option>
+            <option value="FR">French</option>
+            <option value="IT">Italian</option>
+            <option value="JA">Japanese</option>
+            <option value="KO">Korean</option>
+            <option value="NL">Dutch</option>
+            <option value="PT">Portuguese</option>
+            <option value="RU">Russian</option>
+            <option value="VI">Vietnamese</option>
+            <option value="ZH">Chinese</option>
+        </select>
+    </div>
+    <button id="toggleMoreButton" class="toggle-more">More Input Parameters</button>
+    <fieldset id="moreParamsSection" class="hidden">
+        <legend>More Input Parameters</legend>
+        <div>
+            <label for="voiceGenderSelect">TTS Voice Gender:</label>
+            <select id="voiceGenderSelect">
+                <option value="female" selected>Female</option>
+                <option value="male">Male</option>
+            </select>
+        </div>
+        <div>
+            <label for="thresholdInput">VAD Threshold:</label>
+            <input type="number" id="thresholdInput" step="0.01" min="0" max="1" placeholder="0.85" value="0.85">
+        </div>
+        <div>
+            <label for="silenceDurationInput">Silence Duration (ms):</label>
+            <input type="number" id="silenceDurationInput" placeholder="750" value="750">
+        </div>
+        <div>
+            <label for="prefixPaddingInput">Prefix Padding (ms):</label>
+            <input type="number" id="prefixPaddingInput" placeholder="1000" value="1000">
+        </div>
+    </fieldset>
+    <button id="connectButton">Connect</button>
+    <div id="waveSection">
+        <p id="statusLabel">Waiting...</p>
+    </div>
+    <audio id="audioPlayer" autoplay="true"></audio>
+    </div> <!-- end #appCard -->
+    <script src="index.js" defer></script>
+</body>
+</html> 

@@ -115,7 +115,7 @@
 	},
 	"include": [
 		"**/*.ts", // Include all .ts files in the project
-		"services/vad-service.ts"
+		"src/services/vad/vad-service.ts"
 	],
 	"exclude": [
 		"node_modules", // Exclude the node_modules directory
