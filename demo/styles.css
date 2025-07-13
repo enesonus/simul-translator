@@ -12,98 +12,211 @@ body {
   justify-content: center;
   align-items: center;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, "Helvetica Neue", sans-serif;
-  background: linear-gradient(135deg, #6EC8FF 0%, #4E8FFF 50%, #60C1FF 100%);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: #ffffff;
+  padding: 20px;
 }
 
 /* Title */
 .title {
-  font-size: 32px;
+  font-size: 2.5rem;
   font-weight: 600;
-  letter-spacing: 1px;
-  margin-bottom: 24px;
+  letter-spacing: 2px;
+  margin-bottom: 40px;
   text-align: center;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Two-column layout wrapping the app card and results */
+.layout-container {
+  display: flex;
+  gap: 30px;
+  justify-content: center;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: 1200px;
 }
 
 /* Card */
 #appCard {
-  background: rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(20px);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 16px;
-  padding: 32px 28px;
+  padding: 30px;
   width: 90%;
-  max-width: 480px;
+  max-width: 420px;
   display: flex;
   flex-direction: column;
   align-items: stretch;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 }
 
 /* Inputs & Selects */
 label {
   display: block;
-  margin-bottom: 6px;
-  font-size: 14px;
-  color: #e4eefe;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 input[type="text"],
 input[type="number"],
 select {
   width: 100%;
-  padding: 10px 12px;
+  padding: 14px 16px;
   border: none;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   color: #ffffff;
-  font-size: 15px;
-  margin-bottom: 12px;
+  font-size: 0.95rem;
+  margin-bottom: 18px;
+  transition: all 0.3s ease;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+select:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 select option {
   color: #000000; /* Ensure readability inside dropdown */
+  background: #ffffff;
 }
 
 /* Buttons */
 button {
   cursor: pointer;
-  padding: 12px 16px;
-  font-size: 14px;
+  padding: 14px 20px;
+  font-size: 0.95rem;
+  font-weight: 500;
   border: none;
-  border-radius: 12px;
-  background: #4e8fff;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: #ffffff;
-  transition: background 0.2s ease;
-  margin-bottom: 10px;
+  transition: all 0.3s ease;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 button:disabled {
-  opacity: 0.55;
+  opacity: 0.6;
   cursor: not-allowed;
+  transform: none;
 }
 
 button:not(:disabled):hover {
-  background: #6ea8ff;
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
 }
 
 .toggle-more {
-  background: rgba(30, 63, 191, 0.8);
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.toggle-more:hover {
+  background: rgba(255, 255, 255, 0.3);
 }
 
 /* Fieldset */
 fieldset {
-  margin-top: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 12px;
-  padding: 12px;
+  margin-top: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 10px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+fieldset legend {
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+  padding: 0 12px;
 }
 
 .hidden {
   display: none;
 }
 
-
 #statusLabel {
-  margin-top: 12px;
-  font-size: 16px;
+  margin-top: 20px;
+  font-size: 1.1rem;
   font-weight: 500;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.9);
+} 
+
+/* Results Panel */
+.results-container {
+  width: 90%;
+  max-width: 420px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  padding: 30px;
+  color: #ffffff;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  min-height: 200px;
+}
+
+.result-label {
+  font-weight: 600;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.9);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.result-label:first-child {
+  margin-top: 0;
+}
+
+.result-text {
+  white-space: pre-wrap;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+  min-height: 60px;
+  border-left: 3px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+} 
+
+.result-text:not(:empty) {
+  border-left-color: #667eea;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .layout-container {
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+  
+  .title {
+    font-size: 2rem;
+    margin-bottom: 30px;
+  }
+  
+  #appCard,
+  .results-container {
+    max-width: 100%;
+    width: 100%;
+  }
 } 

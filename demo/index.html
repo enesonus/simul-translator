@@ -6,6 +6,7 @@
 </head>
 <body>
     <h1 class="title">SIMULTANEOUS TRANSLATION</h1>
+    <div class="layout-container">
     <div id="appCard">
     <div>
         <label for="wsUrlInput">WebSocket URL:</label>
@@ -77,6 +78,13 @@
     </div>
     <audio id="audioPlayer" autoplay="true"></audio>
     </div> <!-- end #appCard -->
+    <div id="resultsContainer" class="results-container">
+        <div class="result-label">Transcript:</div>
+        <p id="transcriptDisplay" class="result-text"></p>
+        <div class="result-label">Translation:</div>
+        <p id="translationDisplay" class="result-text"></p>
+    </div>
+    </div> <!-- end layout-container -->
     <script src="index.js" defer></script>
 </body>
 </html> 

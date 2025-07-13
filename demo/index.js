@@ -12,6 +12,8 @@ const prefixPaddingInput = document.getElementById('prefixPaddingInput');
 const toggleMoreButton = document.getElementById('toggleMoreButton');
 const moreParamsSection = document.getElementById('moreParamsSection');
 const statusLabel = document.getElementById('statusLabel');
+const transcriptDisplay = document.getElementById('transcriptDisplay');
+const translationDisplay = document.getElementById('translationDisplay');
 // Handler for toggling connect button into disconnect mode
 let disconnectHandler = null;
 
@@ -141,6 +143,8 @@ function resetUI() {
   socket = null;
   if (statusLabel) statusLabel.textContent = "Waiting...";
   updateWave(0);
+  if (transcriptDisplay) transcriptDisplay.textContent = "";
+  if (translationDisplay) translationDisplay.textContent = "";
   if (disconnectHandler) {
     connectButton.removeEventListener('click', disconnectHandler);
     disconnectHandler = null;
@@ -229,8 +233,12 @@ connectButton.addEventListener('click', () => {
       const byteArray = new Uint8Array(byteNumbers);
       pendingAudioChunks.push(byteArray.buffer);
       processPendingChunks();
-    } 
-    else if (messageData.type === "input_audio_buffer.speech_started") {
+    } else if (messageData.type === "response.audio_transcript.done") {
+      if (transcriptDisplay) transcriptDisplay.textContent = messageData.transcription || '';
+      if (translationDisplay) translationDisplay.textContent = '';
+    } else if (messageData.type === "response.translation.done") {
+      if (translationDisplay) translationDisplay.textContent = messageData.translation || '';
+    } else if (messageData.type === "input_audio_buffer.speech_started") {
       mediaSource.removeSourceBuffer(sourceBuffer);
       mediaSource.endOfStream();
       setupStreamingAudio();
