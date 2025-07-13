@@ -35,6 +35,7 @@ COPY package*.json ./
 RUN npm install --omit=dev
 
 COPY --from=builder /usr/src/app/dist ./dist
+COPY --from=builder /usr/src/app/demo ./dist/demo
 COPY --from=builder /usr/src/app/src/static ./dist/src/static
 
 # Write env vars
