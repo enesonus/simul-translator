@@ -205,7 +205,7 @@ connectButton.addEventListener('click', () => {
           target_language: targetLangSelect.value,
         },
         tts_config: {
-          voice: voiceGenderSelect.value === 'male' ? 'Onyx' : (voiceGenderSelect.value === 'female' ? 'Nova' : undefined),
+          voice: voiceGenderSelect.value === 'male' ? 'onwK4e9ZLuTAKqWW03F9' : (voiceGenderSelect.value === 'female' ? 'XrExE9yKIg1WjnnlVkGX' : undefined),
         },
         turn_detection: Object.keys(turnDetectionCfg).length ? turnDetectionCfg : undefined,
       },

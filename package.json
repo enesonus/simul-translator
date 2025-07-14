@@ -11,10 +11,9 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@google/genai": "^1.9.0",
+    "@elevenlabs/elevenlabs-js": "^2.6.0",
     "dotenv": "^17.2.0",
-    "ffmpeg-static": "^5.1.0",
-    "fluent-ffmpeg": "^2.1.2",
+    "iso-language-converter": "^1.1.0",
     "openai": "^4.100.0",
     "sherpa-onnx-node": "^1.12.2",
     "uuid": "^11.1.0",

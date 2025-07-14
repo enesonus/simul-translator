@@ -1,10 +1,10 @@
 import { OpenAI } from "openai";
 import fs from "fs";
 import { Readable, Transform, TransformCallback } from "stream";
-import ffmpeg from "fluent-ffmpeg";
-import ffmpegPath from "ffmpeg-static";
+import { ElevenLabsClient } from "@elevenlabs/elevenlabs-js";
 
 export interface TTSRequest {
+	provider: "openai" | "groq" | "elevenlabs"; // TTS provider
 	voice?: string;
 	format?: "mp3" | "opus" | "aac" | "flac" | "wav" | "pcm" | undefined; // e.g., 'mp3', 'pcm'
 	sampleRate?: number;
@@ -44,37 +44,61 @@ export class TTSService {
 	}
 
 	async synthesize(req: TTSRequest): Promise<Readable> {
-		const client = new OpenAI({
-			// baseURL: "https://api.groq.com/openai/v1",
-			// apiKey: process.env.GROQ_API_KEY,
-		});
+		const CHUNK_SIZE = 8 * 1024; // 8KB
+		let ttsStream: Readable;
+		switch (req.provider) {
+			case "openai":
+				ttsStream = await this.synthesizeOpenAI(req);
+				break;
+			// case "groq":
+			// 	return this.synthesizeGroq(req);
+			case "elevenlabs":
+				ttsStream = await this.synthesizeElevenlabs(req);
+				break;
+			default:
+				throw new Error(`Unsupported TTS provider: ${req.provider}`);
+		}
+		return ttsStream.pipe(new ChunkSizeTransform(CHUNK_SIZE));
+	}
 
+	async synthesizeOpenAI(req: TTSRequest): Promise<Readable> {
+		const client = new OpenAI();
 		const response = await client.audio.speech.create({
 			model: "gpt-4o-mini-tts",
 			voice: req.voice?.toLowerCase() || "nova", // Default voice
 			response_format: "mp3",
 			instructions: "Stable voice, clear and natural.",
-			// voice: req.voice || "Aaliyah-PlayAI", // Default voice
-			// model: "playai-tts", // Default model
-			// response_format: "wav",
 			input: req.text,
 		});
+
 		if (!response.body) {
 			throw new Error("No response body from TTS service");
 		}
 
-		// Ensure we have a Node.js Readable stream regardless of runtime implementation
-		let wavStream: Readable;
+		let ttsStream: Readable;
 		const body = response.body as any;
 		if (body && typeof body.pipe === "function") {
-			// In some environments/body implementations, body is already a Node PassThrough/Readable
-			wavStream = body as Readable;
+			ttsStream = body as Readable;
 		} else {
-			// In fetch style environments (e.g., Web streams), convert to Node Readable
-			wavStream = Readable.fromWeb(body as any);
+			ttsStream = Readable.fromWeb(body as any);
 		}
 
-		// Pipe through the transformer so downstream readers receive >=8192-byte chunks
-		return wavStream.pipe(new ChunkSizeTransform(8 * 1024));
+		return ttsStream;
+	}
+
+	async synthesizeElevenlabs(req: TTSRequest): Promise<Readable> {
+		const client = new ElevenLabsClient({
+			apiKey: process.env.ELEVENLABS_API_KEY,
+		});
+		console.log(`Synthesizing with ElevenLabs: ${req.text}`);
+		const ttsStream = await client.textToSpeech.stream(
+			req.voice || "JBFqnCBsd6RMkjVDRZzb",
+			{
+				outputFormat: "mp3_22050_32",
+				text: req.text,
+				modelId: "eleven_flash_v2_5",
+			}
+		);
+		return Readable.fromWeb(ttsStream as any);
 	}
 }

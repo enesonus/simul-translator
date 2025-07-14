@@ -1,9 +1,7 @@
 import { Buffer } from "buffer";
 import OpenAI, { toFile } from "openai";
-import { FileWriter } from "wav";
-import { finished } from "stream/promises";
-import fs from "fs";
-import { AudioHelpers } from "../../helpers/audio-helpers";
+import { ElevenLabsClient } from "@elevenlabs/elevenlabs-js";
+import isoConv from "iso-language-converter";
 
 export interface STTResult {
 	transcription: string;
@@ -34,6 +32,9 @@ export class STTService {
 				break;
 			case "openai":
 				transcription = await this.transcribeOpenAI(sttRequest);
+				break;
+			case "elevenlabs":
+				transcription = await this.transcribeElevenlabs(sttRequest);
 				break;
 			default:
 				throw new Error(`Unsupported STT provider: ${provider}`);
@@ -75,6 +76,26 @@ export class STTService {
 		return {
 			transcription: transcription.text,
 			language: transcription.language,
+		};
+	}
+
+	async transcribeElevenlabs(req: STTRequest): Promise<STTResult> {
+		const elevenlabs = new ElevenLabsClient();
+
+		const transcription = await elevenlabs.speechToText.convert({
+			file: req.audioData,
+			modelId: "scribe_v1", // Model to use, for now only "scribe_v1" is supported.
+			tagAudioEvents: false, // Tag audio events like laughter, applause, etc.
+			languageCode: req.sourceLanguage, // Language of the audio file. If set to null, the model will detect the language automatically.
+			diarize: false, // Whether to annotate who is speaking
+		});
+		
+		// map ISO-639-1 lang code (e.g. "eng", "tur", "fra", etc.) to "Turkish", "English", etc.
+		const languageName = isoConv(transcription.languageCode  || 'unknown');
+
+		return {
+			transcription: transcription.text,
+			language: languageName || "unknown",
 		};
 	}
 }

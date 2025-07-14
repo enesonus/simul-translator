@@ -273,6 +273,7 @@ export class AudioWorker {
 			let isFirstChunk = true;
 			console.time(`TTS_Start_${responseId}`);
 			const ttsStream = await this.ttsService.synthesize({
+				provider: this.session!.config.tts_config.provider || "elevenlabs",
 				voice: this.session!.config.tts_config.voice,
 				format: this.session!.config.tts_config.format,
 				text: translationResult.translatedText,

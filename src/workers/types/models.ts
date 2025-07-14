@@ -9,10 +9,11 @@ export interface SessionConfig {
 		target_language: string;
 		source_language?: string; // Optional, if not provided, auto-detect
 	};
-  tts_config: {
-    voice?: string; // e.g. "alloy", "en-US-Waven
-    format?: "mp3" | "opus" | "aac" | "flac" | "wav" | "pcm"; // e.g., 'mp3', 'pcm'
-  };
+	tts_config: {
+		provider?: "openai" | "elevenlabs" | "groq"; // e.g. "openai", "groq", "elevenlabs"
+		voice?: string; // e.g. "alloy", "en-US-Waven
+		format?: "mp3" | "opus" | "aac" | "flac" | "wav" | "pcm"; // e.g., 'mp3', 'pcm'
+	};
 	turn_detection: {
 		type: string; // e.g. "silero"
 		threshold: number;
@@ -30,16 +31,17 @@ export function createSessionConfig(
 	config?: Partial<SessionConfig>
 ): SessionConfig {
 	const defaults: SessionConfig = {
-    stt_config: {
-      provider: "openai",
-      model: "whisper-1",
-      target_language: "EN",
-      source_language: undefined, // Auto-detect if not provided
-    },
-    tts_config: {
-      voice: "Angelo-PlayAI",
-      format: "wav", // Default format
-    },
+		stt_config: {
+			provider: "elevenlabs", // Default provider
+			model: "whisper-1",
+			target_language: "EN",
+			source_language: undefined, // Auto-detect if not provided
+		},
+		tts_config: {
+			provider: "elevenlabs", // Default provider
+			voice: "Xb7hH8MSUJpSbSDYk0k2",
+			format: "mp3", // Default format
+		},
 		turn_detection: {
 			type: "silero",
 			threshold: 0.9,
