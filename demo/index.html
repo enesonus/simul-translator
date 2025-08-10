@@ -31,6 +31,9 @@
     </div>
 
     <h1 class="title">SIMULTANEOUS TRANSLATION</h1>
+    <div id="mobileWarning" style="display:none; margin: 12px auto; max-width: 920px; padding: 12px 16px; background: #fff3cd; color: #664d03; border: 1px solid #ffecb5; border-radius: 8px; font-size: 14px;">
+        Simul-translator demo is not supported on mobile devices. Please use a desktop computer.
+    </div>
     <div class="layout-container">
     <div id="appCard">
     <!-- <div>
@@ -41,19 +44,37 @@
         <label for="sourceLangSelect">Source Language:</label>
         <select id="sourceLangSelect">
             <option value="">Auto Detect</option>
-            <option value="TR">Turkish</option>
-            <option value="DE">German</option>
             <option value="EN">English</option>
+            <option value="TR">Turkish</option>
             <option value="ES">Spanish</option>
+            <option value="AR">Arabic</option>
+            <option value="ZH">Chinese</option>
+            <option value="DE">German</option>
             <option value="FR">French</option>
             <option value="IT">Italian</option>
             <option value="JA">Japanese</option>
+            <option value="RU">Russian</option>
             <option value="KO">Korean</option>
             <option value="NL">Dutch</option>
             <option value="PT">Portuguese</option>
-            <option value="RU">Russian</option>
             <option value="VI">Vietnamese</option>
-            <option value="ZH">Chinese</option>
+            <option value="BG">Bulgarian</option>
+            <option value="CS">Czech</option>
+            <option value="DA">Danish</option>
+            <option value="EL">Greek</option>
+            <option value="ET">Estonian</option>
+            <option value="FI">Finnish</option>
+            <option value="HU">Hungarian</option>
+            <option value="ID">Indonesian</option>
+            <option value="LT">Lithuanian</option>
+            <option value="LV">Latvian</option>
+            <option value="NB">Norwegian</option>
+            <option value="PL">Polish</option>
+            <option value="RO">Romanian</option>
+            <option value="SK">Slovak</option>
+            <option value="SL">Slovenian</option>
+            <option value="SV">Swedish</option>
+            <option value="UK">Ukrainian</option>
         </select>
     </div>
     <div>
@@ -61,18 +82,35 @@
         <select id="targetLangSelect" required>
             <option value="EN">English</option>
             <option value="TR">Turkish</option>
-            <option value="DE">German</option>
             <option value="ES">Spanish</option>
+            <option value="AR">Arabic</option>
+            <option value="ZH">Chinese</option>
+            <option value="DE">German</option>
             <option value="FR">French</option>
             <option value="IT">Italian</option>
             <option value="JA">Japanese</option>
+            <option value="RU">Russian</option>
             <option value="KO">Korean</option>
             <option value="NL">Dutch</option>
             <option value="PT">Portuguese</option>
-            <option value="RU">Russian</option>
             <option value="VI">Vietnamese</option>
-            <option value="ZH">Chinese</option>
-            <option value="AR">Arabic</option>
+            <option value="BG">Bulgarian</option>
+            <option value="CS">Czech</option>
+            <option value="DA">Danish</option>
+            <option value="EL">Greek</option>
+            <option value="ET">Estonian</option>
+            <option value="FI">Finnish</option>
+            <option value="HU">Hungarian</option>
+            <option value="ID">Indonesian</option>
+            <option value="LT">Lithuanian</option>
+            <option value="LV">Latvian</option>
+            <option value="NB">Norwegian</option>
+            <option value="PL">Polish</option>
+            <option value="RO">Romanian</option>
+            <option value="SK">Slovak</option>
+            <option value="SL">Slovenian</option>
+            <option value="SV">Swedish</option>
+            <option value="UK">Ukrainian</option>
         </select>
     </div>
     <button id="toggleMoreButton" class="toggle-more">More Input Parameters</button>
@@ -81,8 +119,8 @@
         <div>
             <label for="voiceGenderSelect">TTS Voice Gender:</label>
             <select id="voiceGenderSelect">
-                <option value="female" selected>Female</option>
-                <option value="male">Male</option>
+                <option value="male" selected>Male</option>
+                <option value="female">Female</option>
             </select>
         </div>
         <div>
