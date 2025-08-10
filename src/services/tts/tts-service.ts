@@ -91,10 +91,21 @@ export class TTSService {
 			apiKey: process.env.ELEVENLABS_API_KEY,
 		});
 		console.log(`Synthesizing with ElevenLabs: ${req.text}`);
+
+		// Map generic format to ElevenLabs output format
+		let outputFormat: any = "mp3_22050_32";
+		if (req.format === "pcm") {
+			outputFormat = "pcm_16000";
+		} else if (req.format === "opus") {
+			outputFormat = "opus_48000_64";
+		} else if (req.format === "mp3") {
+			outputFormat = "mp3_22050_32";
+		}
+
 		const ttsStream = await client.textToSpeech.stream(
 			req.voice || "JBFqnCBsd6RMkjVDRZzb",
 			{
-				outputFormat: "mp3_22050_32",
+				outputFormat,
 				text: req.text,
 				modelId: "eleven_flash_v2_5",
 			}

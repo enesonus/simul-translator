@@ -51,6 +51,7 @@ export class STTService {
 			baseURL: "https://api.groq.com/openai/v1",
 			apiKey: process.env.GROQ_API_KEY,
 		});
+		console.log(`Transcribing with Groq: language: ${req.sourceLanguage}, Model: ${req.model}`);
 		const transcription = await client.audio.transcriptions.create({
 			file: await toFile(req.audioData, "audio.wav"),
 			language: req.sourceLanguage,
@@ -89,9 +90,9 @@ export class STTService {
 			languageCode: req.sourceLanguage, // Language of the audio file. If set to null, the model will detect the language automatically.
 			diarize: false, // Whether to annotate who is speaking
 		});
-		
+
 		// map ISO-639-1 lang code (e.g. "eng", "tur", "fra", etc.) to "Turkish", "English", etc.
-		const languageName = isoConv(transcription.languageCode  || 'unknown');
+		const languageName = isoConv(transcription.languageCode || "unknown");
 
 		return {
 			transcription: transcription.text,
