@@ -32,8 +32,8 @@ export function createSessionConfig(
 ): SessionConfig {
 	const defaults: SessionConfig = {
 		stt_config: {
-			provider: "elevenlabs", // Default provider
-			model: "whisper-1",
+			provider: "groq", // Default provider
+			model: "whisper-large-v3",
 			target_language: undefined,
 			source_language: undefined, // Auto-detect if not provided
 		},
