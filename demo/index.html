@@ -1,17 +1,42 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
     <title>Simultaneous Translator WebSocket</title>
     <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+    <!-- Email Collection Popup -->
+    <div id="emailModal" class="email-modal">
+        <div class="email-modal-overlay"></div>
+        <div class="email-modal-content">
+            <button class="email-modal-close" id="emailModalClose">×</button>
+            <div class="email-modal-header">
+                <h2>Stay Updated! 📧</h2>
+                <p>Get notified about my latest blog posts and translation tools updates</p>
+            </div>
+            <form id="emailForm" class="email-form">
+                <div class="email-input-group">
+                    <input 
+                        type="email" 
+                        id="emailInput" 
+                        placeholder="Enter your email address"
+                        required
+                    >
+                </div>
+                <button type="submit" class="email-submit-btn">Subscribe</button>
+                <p class="email-disclaimer">We respect your privacy. Unsubscribe at any time.</p>
+            </form>
+        </div>
+    </div>
+
     <h1 class="title">SIMULTANEOUS TRANSLATION</h1>
     <div class="layout-container">
     <div id="appCard">
-    <div>
+    <!-- <div>
         <label for="wsUrlInput">WebSocket URL:</label>
-        <input type="text" id="wsUrlInput" value="ws://localhost:8080">
-    </div>
+        <input type="text" id="wsUrlInput" value="https://simul-translator-11820398872.us-central1.run.app">
+    </div> -->
     <div>
         <label for="sourceLangSelect">Source Language:</label>
         <select id="sourceLangSelect">
@@ -47,6 +72,7 @@
             <option value="RU">Russian</option>
             <option value="VI">Vietnamese</option>
             <option value="ZH">Chinese</option>
+            <option value="AR">Arabic</option>
         </select>
     </div>
     <button id="toggleMoreButton" class="toggle-more">More Input Parameters</button>

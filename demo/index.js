@@ -1,7 +1,159 @@
+// Email Modal Functionality
+const emailModal = document.getElementById('emailModal');
+const emailModalClose = document.getElementById('emailModalClose');
+const emailForm = document.getElementById('emailForm');
+const emailInput = document.getElementById('emailInput');
+
+// Check if user has already submitted email
+const hasSubmittedEmail = localStorage.getItem('emailSubmitted') === 'true';
+
+// Show modal on page load if user hasn't submitted email
+if (!hasSubmittedEmail) {
+  showEmailModal();
+}
+
+function showEmailModal() {
+  if (emailModal) {
+    emailModal.classList.remove('hidden');
+    // Focus on email input after modal animation
+    setTimeout(() => {
+      if (emailInput) emailInput.focus();
+    }, 300);
+  }
+}
+
+function hideEmailModal() {
+  if (emailModal) {
+    emailModal.classList.add('hidden');
+  }
+}
+
+// Close modal when clicking X button
+if (emailModalClose) {
+  emailModalClose.addEventListener('click', hideEmailModal);
+}
+
+// Close modal when clicking overlay
+if (emailModal) {
+  emailModal.addEventListener('click', (e) => {
+    if (e.target === emailModal || e.target.classList.contains('email-modal-overlay')) {
+      hideEmailModal();
+    }
+  });
+}
+
+// Close modal with Escape key
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && emailModal && !emailModal.classList.contains('hidden')) {
+    hideEmailModal();
+  }
+});
+
+// Handle form submission
+if (emailForm) {
+  emailForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const email = emailInput.value.trim();
+    if (!email) return;
+
+    // Disable submit button and show loading state
+    const submitBtn = emailForm.querySelector('.email-submit-btn');
+    const originalText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Subscribing...';
+
+    try {
+      // Here you would typically send the email to your backend
+      // For now, we'll simulate an API call
+      await simulateEmailSubmission(email);
+
+      // Show success message
+      showSuccessMessage();
+
+      // Mark as submitted in localStorage
+      localStorage.setItem('emailSubmitted', 'true');
+
+      // Hide modal after short delay
+      setTimeout(() => {
+        hideEmailModal();
+      }, 2000);
+
+    } catch (error) {
+      console.error('Email submission failed:', error);
+      // Reset button state on error
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalText;
+      showErrorMessage();
+    }
+  });
+}
+
+function simulateEmailSubmission(email) {
+  // Make actual API call to backend
+  return fetch('/api/email/subscribe', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email })
+  })
+    .then(response => {
+      if (!response.ok) {
+        return response.json().then(errorData => {
+          throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+        });
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('Email subscription successful:', data);
+      return data;
+    })
+    .catch(error => {
+      console.error('Email subscription failed:', error);
+      throw error;
+    });
+}
+
+function showSuccessMessage() {
+  // Remove any existing messages
+  const existingMessage = emailForm.querySelector('.email-success-message, .email-error-message');
+  if (existingMessage) existingMessage.remove();
+
+  const successMessage = document.createElement('div');
+  successMessage.className = 'email-success-message';
+  successMessage.textContent = '🎉 Thanks for subscribing! You\'ll hear from us soon.';
+  emailForm.appendChild(successMessage);
+}
+
+function showErrorMessage() {
+  // Remove any existing messages
+  const existingMessage = emailForm.querySelector('.email-success-message, .email-error-message');
+  if (existingMessage) existingMessage.remove();
+
+  const errorMessage = document.createElement('div');
+  errorMessage.className = 'email-error-message';
+  errorMessage.textContent = '❌ Something went wrong. Please try again.';
+  errorMessage.style.cssText = `
+    text-align: center;
+    color: #ef4444;
+    font-size: 16px;
+    font-weight: 500;
+    margin-top: 16px;
+    padding: 12px;
+    background: rgba(239, 68, 68, 0.1);
+    border-radius: 12px;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+  `;
+  emailForm.appendChild(errorMessage);
+}
+
+// Main application code starts here
 const connectButton = document.getElementById('connectButton');
 // startRecordButton removed – logic merged into connect workflow
 const audioPlayer = document.getElementById('audioPlayer');
-const wsUrlInput = document.getElementById('wsUrlInput');
+const wsUrlInput = "https://simul-translator-11820398872.us-central1.run.app";
 const sourceLangSelect = document.getElementById('sourceLangSelect');
 const targetLangSelect = document.getElementById('targetLangSelect');
 const voiceGenderSelect = document.getElementById('voiceGenderSelect');
@@ -132,7 +284,7 @@ function resetUI() {
     audioContext = null;
   }
   if (audioMotion) {
-    try { audioMotion.destroy(); } catch(e){}
+    try { audioMotion.destroy(); } catch (e) { }
     audioMotion = null;
   }
 
@@ -173,7 +325,7 @@ connectButton.addEventListener('click', () => {
   connectButton.disabled = true;
   // no secondary button anymore
 
-  const currentWsUrl = wsUrlInput.value;
+  const currentWsUrl = "https://simul-translator-11820398872.us-central1.run.app";
   socket = new WebSocket(currentWsUrl);
   setupStreamingAudio();
 
@@ -200,6 +352,12 @@ connectButton.addEventListener('click', () => {
     const sessionCreateMessage = {
       type: "session.create",
       config: {
+        stt_config: {
+          provider: "groq", // Default provider
+          model: "whisper-large-v3",
+          source_language: sourceLangSelect.value || undefined,
+          target_language: undefined
+        },
         translation: {
           source_language: sourceLangSelect.value || undefined,
           target_language: targetLangSelect.value,

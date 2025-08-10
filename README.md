@@ -9,9 +9,9 @@
 Simul-Translator turns a microphone stream into translated speech in (near) real-time. Audio frames are streamed over a WebSocket connection where the server pipeline performs:
 
 1. **Voice Activity Detection (VAD)** – detects speech boundaries with [Silero VAD] running on **Sherpa-ONNX**.
-2. **Speech-to-Text (STT)** – transcribes the detected segment using **ElevenLabs Scribe v1** by default (can switch to OpenAI/Groq).
+2. **Speech-to-Text (STT)** – transcribes the detected segment using Whisper (OpenAI/Groq).
 3. **Neural Machine Translation (NMT)** – translates the text with the DeepL REST API.
-4. **Text-to-Speech (TTS)** – synthesises the translated text with **ElevenLabs TTS** (Flash v2.5 voice) by default.
+4. **Text-to-Speech (TTS)** – synthesises the translated text with the OpenAI TTS endpoint.
 5. **Streaming back audio & metadata** – the client gets translation text and a TTS audio stream it can play instantly.
 
 > All services are interchangeable thanks to the modular `src/services/**` design – plug in your own STT, NMT or TTS provider.
@@ -63,12 +63,11 @@ The static demo (`/demo`) captures your microphone, connects to the WebSocket AP
 
 2. **Create `.env`** (root directory)
    ```env
-   # ElevenLabs (default STT + TTS)
-   ELEVENLABS_API_KEY=elv-...
+   # Speech-to-Text (OpenAI Whisper)
+   OPENAI_API_KEY=sk-...
 
-   # Speech-to-Text alternatives
-   OPENAI_API_KEY=sk-...   # optional
-   GROQ_API_KEY=gr-...     # optional
+   # Alternative STT provider (optional)
+   GROQ_API_KEY=gr-...
 
    # Translation (DeepL)
    DEEPL_API_KEY=xxxxxxxx-xxxxxxxx-xxxxxxxxxx:fx
@@ -97,7 +96,7 @@ The repository ships with a multi-stage image (≈ 250 MB).
 docker build -t simul-translator .
 
 docker run -p 8080:8080 \
-  -e ELEVENLABS_API_KEY=$ELEVENLABS_API_KEY \
+  -e OPENAI_API_KEY=$OPENAI_API_KEY \
   -e DEEPL_API_KEY=$DEEPL_API_KEY \
   simul-translator
 ```
@@ -121,8 +120,7 @@ Client opens a WS connection (e.g. `ws://localhost:8080`) and immediately sends:
       "source_language": "TR"        // optional – omit to auto-detect
     },
     "tts_config": {
-      "provider": "elevenlabs",        // default provider (optional)
-      "voice": "Xb7hH8MSUJpSbSDYk0k2", // ElevenLabs voice ID (Nova-like female)
+      "voice": "nova",               // see Elevenlabs voices
       "format": "mp3"
     },
     "turn_detection": {
@@ -183,9 +181,9 @@ Server responds with `session.updated`.
 | Stage | Implementation |
 |-------|----------------|
 | VAD | `services/vad/vad-service.ts` – Silero ONNX model via `sherpa-onnx-node` |
-| STT | `services/stt/stt-service.ts` – **ElevenLabs Scribe v1** (default) or Whisper (`openai` / `groq`) |
+| STT | `services/stt/stt-service.ts` – Whisper (`openai` or `groq`) |
 | Translation | `services/translation/translation-service.ts` – DeepL REST |
-| TTS | `services/tts/tts-service.ts` – **ElevenLabs Flash v2.5** (default) or OpenAI TTS |
+| TTS | `services/tts/tts-service.ts` – OpenAI TTS (`gpt-4o-mini-tts`) |
 
 All four stages expose a tiny interface; swap them with your own provider in minutes.
 
@@ -193,9 +191,10 @@ All four stages expose a tiny interface; swap them with your own provider in min
 
 ## Roadmap
 
-- [ ] Use local LLM for translation
-- [ ] Semantic VAD for semantically corrected simultaneous translation
+- [ ] Replace DeepL with local LLM fallback
+- [ ] gRPC transport (lower overhead) & Auth
 - [ ] Speaker diarisation & multi-party sessions
+- [ ] OpenAI `audio.translations` streaming once available
 
 ---
 
