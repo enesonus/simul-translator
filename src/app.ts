@@ -25,7 +25,7 @@ const httpServer = http.createServer((req, res) => {
         const fileName = req.url.startsWith('/') ? req.url.substring(1) : req.url;
         const filePath = path.join(__dirname, '../demo', fileName);
         const contentType = req.url.endsWith('.js') ? 'text/javascript' : 'text/css';
-        console.log(`Serving static file: ${filePath}`);
+        // console.log(`Serving static file: ${filePath}`);
         fs.readFile(filePath, (err, data) => {
             if (err) {
                 res.writeHead(404);
