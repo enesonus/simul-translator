@@ -34,7 +34,7 @@ export function createSessionConfig(
 		stt_config: {
 			provider: "elevenlabs", // Default provider
 			model: "whisper-1",
-			target_language: "EN",
+			target_language: undefined,
 			source_language: undefined, // Auto-detect if not provided
 		},
 		tts_config: {

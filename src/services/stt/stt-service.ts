@@ -51,9 +51,9 @@ export class STTService {
 			baseURL: "https://api.groq.com/openai/v1",
 			apiKey: process.env.GROQ_API_KEY,
 		});
+		console.log(`Transcribing with Groq: language: ${req.sourceLanguage}, Model: ${req.model}`);
 		const transcription = await client.audio.transcriptions.create({
 			file: await toFile(req.audioData, "audio.wav"),
-			prompt: 'I have some advice for you. multiple sentences help establish a pattern. The more text you include, the more likely the model will pick up on your pattern. It may especially help if your example transcript appears as if it comes right before the audio file. In this case, that could mean mentioning the contacts i stick in my eyes.',
 			language: req.sourceLanguage,
 			model: req.model,
 			response_format: "verbose_json",
@@ -90,9 +90,9 @@ export class STTService {
 			languageCode: req.sourceLanguage, // Language of the audio file. If set to null, the model will detect the language automatically.
 			diarize: false, // Whether to annotate who is speaking
 		});
-		
+
 		// map ISO-639-1 lang code (e.g. "eng", "tur", "fra", etc.) to "Turkish", "English", etc.
-		const languageName = isoConv(transcription.languageCode  || 'unknown');
+		const languageName = isoConv(transcription.languageCode || "unknown");
 
 		return {
 			transcription: transcription.text,

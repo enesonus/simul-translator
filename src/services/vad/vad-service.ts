@@ -62,7 +62,7 @@ class VADService {
 					minSpeechDuration: vadOptions.minSpeechDuration || 0.25,
 					minSilenceDuration: vadOptions.minSilenceDuration / 1000 || 0.5,
 					windowSize: 512,
-					maxSpeechDuration: 60.0, // Default max speech duration
+					maxSpeechDuration: 120.0, // Default max speech duration
 				},
 				sampleRate: vadOptions.sampleRate || vadOptions.sampleRate,
 				numThreads: 1,

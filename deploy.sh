@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-# Deploy to Google Cloud Run using .env for environment variables.
+# Deploy to Google Cloud Run using env.yaml for environment variables.
 # Requirements:
 # - gcloud CLI installed and authenticated:  gcloud auth login
 # - Project set:                             gcloud config set project YOUR_PROJECT_ID
@@ -23,6 +23,10 @@ set -euo pipefail
 #   SERVICE_NAME=my-svc REGION=europe-west1 ./deploy.sh
 
 echo "==> Preparing configuration"
+
+# Resolve script directory (same dir as Dockerfile and env.yaml)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DEFAULT_ENV_YAML="${SCRIPT_DIR}/env.yaml"
 
 SERVICE_NAME=${SERVICE_NAME:-simul-translator}
 REGION=${REGION:-${CLOUD_RUN_REGION:-us-central1}}
@@ -46,10 +50,7 @@ echo "Region:         ${REGION}"
 echo "Repo:           ${REPO}"
 echo "Image:          ${IMAGE_URI}"
 
-if [[ ! -f .env ]]; then
-  echo "ERROR: .env file not found at $(pwd)/.env"
-  exit 1
-fi
+# Env vars must be provided via a YAML file (ENV_VARS_FILE override or env.yaml next to this script)
 
 echo "==> Enabling required APIs (idempotent)"
 gcloud services enable \
@@ -79,28 +80,22 @@ else
   echo "==> Skipping manual image build (run_source mode)"
 fi
 
-# Prepare env vars from .env
-# - Ignore comments and blank lines
-# - Strip leading 'export '
-# - Join with custom delimiter '@' to avoid issues with commas in values
-echo "==> Preparing environment variables from .env"
-ENV_JOINED=$(\
-  grep -vE '^\s*#' .env | \
-  sed -E 's/^\s*export\s+//' | \
-  sed -E 's/\r$//' | \
-  # Trim spaces around '=' and strip surrounding single/double quotes from values
-  sed -E 's/^\s*([^=[:space:]]+)\s*=\s*"(.*)"\s*$/\1=\2/' | \
-  sed -E "s/^\s*([^=[:space:]]+)\s*=\s*'(.*)'\s*$/\1=\2/" | \
-  sed -E 's/^\s*([^=[:space:]]+)\s*=\s*/\1=/' | \
-  sed '/^\s*$/d' | \
-  paste -sd '@' -
-)
+echo "==> Preparing environment variables for Cloud Run"
 
-if [[ -z "${ENV_JOINED}" ]]; then
-  echo "WARNING: .env appears to be empty after filtering; continuing without custom env vars"
-  ENV_ARG=( )
+if [[ -n "${ENV_VARS_FILE:-}" ]]; then
+  if [[ -s "${ENV_VARS_FILE}" ]]; then
+    echo "Using provided env vars file: ${ENV_VARS_FILE}"
+    ENV_ARG=( --env-vars-file "${ENV_VARS_FILE}" )
+  else
+    echo "ERROR: ENV_VARS_FILE '${ENV_VARS_FILE}' not found or empty"
+    exit 1
+  fi
+elif [[ -s "${DEFAULT_ENV_YAML}" ]]; then
+  echo "Using env vars file next to script: ${DEFAULT_ENV_YAML}"
+  ENV_ARG=( --env-vars-file "${DEFAULT_ENV_YAML}" )
 else
-  ENV_ARG=( --set-env-vars "^@^${ENV_JOINED}" )
+  echo "ERROR: No env vars file found. Provide ${DEFAULT_ENV_YAML} or set ENV_VARS_FILE=/abs/path/to/env.yaml"
+  exit 1
 fi
 
 echo "==> Deploying to Cloud Run"
@@ -130,31 +125,6 @@ fi
 URL=$(gcloud run services describe "${SERVICE_NAME}" --region "${REGION}" --format='value(status.url)' --project "${PROJECT_ID}")
 echo "==> Deployed: ${URL}"
 
-# Optional: map a custom domain if provided
-if [[ -n "${CUSTOM_DOMAIN:-}" ]]; then
-  echo "==> Setting up custom domain mapping for ${CUSTOM_DOMAIN}"
-  if ! gcloud run domain-mappings describe "${CUSTOM_DOMAIN}" --region "${REGION}" --project "${PROJECT_ID}" >/dev/null 2>&1; then
-    set +e
-    gcloud run domain-mappings create \
-      --service "${SERVICE_NAME}" \
-      --domain "${CUSTOM_DOMAIN}" \
-      --region "${REGION}" \
-      --project "${PROJECT_ID}" --quiet
-    CREATE_EXIT=$?
-    set -e
-    if [[ ${CREATE_EXIT} -ne 0 ]]; then
-      echo "NOTE: Domain mapping creation failed (domain may not be verified)."
-      echo "      Verify domain ownership in the Cloud Console, then re-run with CUSTOM_DOMAIN set."
-    fi
-  fi
-
-  echo "==> DNS records to add for ${CUSTOM_DOMAIN}:"
-  gcloud run domain-mappings describe "${CUSTOM_DOMAIN}" \
-    --region "${REGION}" \
-    --project "${PROJECT_ID}" \
-    --format='table(status.resourceRecords[].name,status.resourceRecords[].type,status.resourceRecords[].rrdata)'
-  echo "After updating DNS, certificate provisioning can take up to 60 minutes."
-fi
 
 echo "Done."
 

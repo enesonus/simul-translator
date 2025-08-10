@@ -14,47 +14,60 @@ import { FileWriter } from "wav";
 import { Base64Encoder } from "../../helpers/base64-encoder";
 import { AudioHelpers } from "../../helpers/audio-helpers";
 import { Session, createSessionConfig } from "./models";
+import isoConv from "iso-language-converter";
 
-// Map STT language names (e.g., "English") to DeepL language codes (e.g., "EN")
-const LANGUAGE_NAME_TO_CODE: Record<string, string> = {
-	arabic: "AR",
-	bulgarian: "BG",
-	czech: "CS",
-	danish: "DA",
-	german: "DE",
-	greek: "EL",
-	english: "EN",
-	spanish: "ES",
-	estonian: "ET",
-	finnish: "FI",
-	french: "FR",
-	hebrew: "HE",
-	hungarian: "HU",
-	indonesian: "ID",
-	italian: "IT",
-	japanese: "JA",
-	korean: "KO",
-	lithuanian: "LT",
-	latvian: "LV",
-	"norwegian bokmål": "NB",
-	dutch: "NL",
-	polish: "PL",
-	portuguese: "PT",
-	romanian: "RO",
-	russian: "RU",
-	slovak: "SK",
-	slovenian: "SL",
-	swedish: "SV",
-	thai: "TH",
-	turkish: "TR",
-	ukrainian: "UK",
-	vietnamese: "VI",
-	chinese: "ZH",
-};
+// Build a dynamic language name -> DeepL code map using isoConv for supported languages
+// These codes should mirror what the UI and DeepL support
+const SUPPORTED_DEEPL_CODES = [
+    "AR","BG","CS","DA","DE","EL","EN","ES","ET","FI","FR",
+    "HU","ID","IT","JA","KO","LT","LV","NB","NL","PL","PT",
+    "RO","RU","SK","SL","SV","TR","UK","VI","ZH"
+];
 
-function mapLanguageNameToCode(name?: string): string | undefined {
-	if (!name) return undefined;
-	return LANGUAGE_NAME_TO_CODE[name.trim().toLowerCase()];
+const NAME_TO_CODE: Record<string, string> = SUPPORTED_DEEPL_CODES.reduce(
+    (acc: Record<string, string>, code) => {
+        const name = isoConv(code.toLowerCase());
+        if (name) {
+            acc[name.trim().toLowerCase()] = code;
+        }
+        return acc;
+    },
+    {}
+);
+
+// Add a few common synonyms that isoConv may not normalize identically
+NAME_TO_CODE["norwegian"] = "NB";
+NAME_TO_CODE["norwegian bokmål"] = "NB";
+
+function resolveDeepLSourceLanguage(
+    userSelectedCode?: string,
+    sttReportedLanguage?: string
+): string | undefined {
+    // 1) Prefer explicit user selection from session config (already a code like EN, TR, ...)
+    if (userSelectedCode && userSelectedCode.trim().length > 0) {
+        return userSelectedCode.trim().toUpperCase();
+    }
+
+    // 2) If STT provides a language, try to convert it to DeepL code
+    if (!sttReportedLanguage) return undefined; // let DeepL auto-detect
+
+    const lang = sttReportedLanguage.trim();
+    // If it's a 2-letter code like 'en', 'tr'
+    if (/^[A-Za-z]{2}$/.test(lang)) {
+        return lang.toUpperCase();
+    }
+    // If it's a 3-letter code like 'eng', try to normalize to name via isoConv, then map to code
+    if (/^[A-Za-z]{3}$/.test(lang)) {
+        const nameFrom3 = isoConv(lang.toLowerCase());
+        if (nameFrom3) {
+            const mapped = NAME_TO_CODE[nameFrom3.trim().toLowerCase()];
+            if (mapped) return mapped;
+        }
+        return undefined;
+    }
+    // Otherwise assume it's a language name; map via NAME_TO_CODE
+    const mapped = NAME_TO_CODE[lang.toLowerCase()];
+    return mapped || undefined; // fallback to auto-detect if not mapped
 }
 
 export class AudioWorker {
@@ -250,10 +263,14 @@ export class AudioWorker {
 
 			console.time(`Translation_${responseId}`);
 			// 2. Translation
+			const sourceLangForDeepL = resolveDeepLSourceLanguage(
+				this.session!.config.translation.source_language,
+				sttResult.language
+			);
 			const translationResult = await this.translationService.translate({
 				text: sttResult.transcription,
 				targetLanguage: this.session!.config.translation.target_language,
-				sourceLanguage: mapLanguageNameToCode(sttResult.language),
+				sourceLanguage: sourceLangForDeepL,
 			});
 			console.timeEnd(`Translation_${responseId}`);
 			console.log(
