@@ -68,19 +68,67 @@ function countryCodeToFlagEmoji(cc) {
   return String.fromCodePoint(base + first.charCodeAt(0) - 65, base + second.charCodeAt(0) - 65);
 }
 
-function injectFlagEmojis() {
-  const selectEl = document.getElementById('targetLangSelect');
+function injectFlagEmojisForSelect(selectId) {
+  const selectEl = document.getElementById(selectId);
   if (!selectEl) return;
   Array.from(selectEl.options).forEach((opt) => {
-    // Remove any existing emoji flags (two regional indicator symbols)
-    const cleanedText = opt.textContent.replace(/^[\uD83C-\uDBFF\uDC00-\uDFFF]{2}\s*/, '');
+    // Handle Auto Detect specially with a globe emoji
+    if (opt.value === '') {
+      const baseText = (opt.textContent || 'Auto Detect').replace(/^🌐\s*/, '').trim() || 'Auto Detect';
+      opt.textContent = `🌐 ${baseText}`;
+      return;
+    }
+
+    // Remove any existing emoji flags (two regional indicator symbols) or leading globe if present
+    let cleanedText = opt.textContent.replace(/^[\uD83C-\uDBFF\uDC00-\uDFFF]{2}\s*/, '');
+    if (cleanedText.startsWith('🌐 ')) cleanedText = cleanedText.slice(2);
+
     const countryCode = langToCountry[opt.value] || langToCountry[cleanedText] || opt.value.split('-')[0];
     const flag = countryCodeToFlagEmoji(countryCode);
     opt.textContent = flag ? `${flag} ${cleanedText}` : cleanedText;
   });
 }
 
-injectFlagEmojis();
+// Inject flags for both target and source language selects
+injectFlagEmojisForSelect('targetLangSelect');
+injectFlagEmojisForSelect('sourceLangSelect');
+
+// --- Send session.update on language changes ---
+function buildSessionUpdateConfig() {
+  return {
+    stt_config: {
+      provider: 'groq',
+      model: 'whisper-large-v3',
+      source_language: sourceLangSelect && sourceLangSelect.value ? sourceLangSelect.value : undefined,
+      target_language: undefined,
+    },
+    translation: {
+      source_language: sourceLangSelect && sourceLangSelect.value ? sourceLangSelect.value : undefined,
+      target_language: targetLangSelect && targetLangSelect.value ? targetLangSelect.value : undefined,
+    },
+  };
+}
+
+function sendSessionUpdate() {
+  if (!socket || socket.readyState !== WebSocket.OPEN) return;
+  const msg = {
+    type: 'session.update',
+    config: buildSessionUpdateConfig(),
+  };
+  socket.send(JSON.stringify(msg));
+}
+
+if (sourceLangSelect) {
+  sourceLangSelect.addEventListener('change', () => {
+    sendSessionUpdate();
+  });
+}
+
+if (targetLangSelect) {
+  targetLangSelect.addEventListener('change', () => {
+    sendSessionUpdate();
+  });
+}
 
 // Toggle visibility for extra parameters
 if (toggleMoreButton && moreParamsSection) {
@@ -95,6 +143,7 @@ let mediaSource = null;
 let sourceBuffer = null;
 let pendingAudioChunks = [];
 let isSourceBufferReady = false;
+// iOS not supported: we will show a warning and disable Connect; no PCM fallback
 
 // Audio sending
 let audioContext = null;
@@ -117,6 +166,9 @@ function resetUI() {
 
   // Clean up MediaSource / buffers
   cleanupMediaSource();
+
+  // Stop PCM playback path entirely
+  stopPcmPlayback();
 
   // Stop microphone capture
   if (scriptNode) {
@@ -173,9 +225,16 @@ connectButton.addEventListener('click', () => {
   connectButton.disabled = true;
   // no secondary button anymore
 
-  const currentWsUrl = wsUrlInput.value;
-  socket = new WebSocket(currentWsUrl);
-  setupStreamingAudio();
+  const getWsUrl = () => {
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const returnUrl = `${protocol}//${window.location.host}`;
+    console.log("Using WebSocket URL:", returnUrl);
+    return returnUrl;
+  };
+  socket = new WebSocket(getWsUrl());
+  if (typeof MediaSource !== 'undefined') {
+    setupStreamingAudio();
+  }
 
   // Handle connection errors / closures
   socket.onerror = (err) => {
@@ -206,6 +265,7 @@ connectButton.addEventListener('click', () => {
         },
         tts_config: {
           voice: voiceGenderSelect.value === 'male' ? 'onwK4e9ZLuTAKqWW03F9' : (voiceGenderSelect.value === 'female' ? 'XrExE9yKIg1WjnnlVkGX' : undefined),
+          format: 'mp3',
         },
         turn_detection: Object.keys(turnDetectionCfg).length ? turnDetectionCfg : undefined,
       },
@@ -239,9 +299,15 @@ connectButton.addEventListener('click', () => {
     } else if (messageData.type === "response.translation.done") {
       if (translationDisplay) translationDisplay.textContent = messageData.translation || '';
     } else if (messageData.type === "input_audio_buffer.speech_started") {
-      mediaSource.removeSourceBuffer(sourceBuffer);
-      mediaSource.endOfStream();
-      setupStreamingAudio();
+      if (mediaSource) {
+        try {
+          if (sourceBuffer) mediaSource.removeSourceBuffer(sourceBuffer);
+          if (mediaSource.readyState === 'open') mediaSource.endOfStream();
+        } catch (e) {
+          console.warn('Error resetting MediaSource on speech start', e);
+        }
+        setupStreamingAudio();
+      }
       pendingAudioChunks = [];
     } else if (messageData.type === "response.error") {
       // Backend signalled an error – reset the UI so user can reconnect
@@ -305,6 +371,10 @@ function base64EncodeAudio(arrayBuffer) {
 }
 
 function setupStreamingAudio() {
+  if (typeof MediaSource === 'undefined') {
+    console.warn('MediaSource is not supported in this environment');
+    return;
+  }
   mediaSource = new MediaSource();
   audioPlayer.src = URL.createObjectURL(mediaSource);
   pendingAudioChunks = [];
@@ -371,3 +441,16 @@ function cleanupMediaSource() {
     audioPlayer.src = "";
   }
 }
+
+// Mobile block: show warning and disable Connect
+(function blockMobile() {
+  const ua = navigator.userAgent || navigator.vendor || window.opera;
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+  if (!isMobile) return;
+  const banner = document.getElementById('mobileWarning');
+  if (banner) banner.style.display = 'block';
+  if (connectButton) {
+    connectButton.disabled = true;
+    connectButton.textContent = 'Not supported on mobile';
+  }
+})();
