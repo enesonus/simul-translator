@@ -13,6 +13,7 @@ const sourceLangSelect = document.getElementById('sourceLangSelect');
 const targetLangSelect = document.getElementById('targetLangSelect');
 const voiceGenderSelect = document.getElementById('voiceGenderSelect');
 const thresholdInput = document.getElementById('thresholdInput');
+const translationProviderSelect = document.getElementById('translationProviderSelect');
 const silenceDurationInput = document.getElementById('silenceDurationInput');
 const prefixPaddingInput = document.getElementById('prefixPaddingInput');
 const toggleMoreButton = document.getElementById('toggleMoreButton');
@@ -51,6 +52,7 @@ function buildSessionUpdateConfig() {
       target_language: undefined,
     },
     translation: {
+      provider: translationProviderSelect?.value || "groq",
       source_language: sourceLangSelect?.value || undefined,
       target_language: targetLangSelect?.value || undefined,
     },
@@ -62,6 +64,7 @@ function sendSessionUpdate() {
 }
 sourceLangSelect?.addEventListener('change', sendSessionUpdate);
 targetLangSelect?.addEventListener('change', sendSessionUpdate);
+translationProviderSelect?.addEventListener('change', sendSessionUpdate);
 
 // MSE audio controller
 const mse = new MSEAudio(audioPlayer);
@@ -117,7 +120,7 @@ connectButton.addEventListener('click', () => {
       type: 'session.create',
       config: {
         stt_config: { provider: 'groq', model: 'whisper-large-v3', source_language: sourceLangSelect.value || undefined, target_language: undefined },
-        translation: { source_language: sourceLangSelect.value || undefined, target_language: targetLangSelect.value },
+        translation: { provider: translationProviderSelect?.value || "groq", source_language: sourceLangSelect.value || undefined, target_language: targetLangSelect.value },
         tts_config: { voice: voiceGenderSelect.value === 'male' ? 'onwK4e9ZLuTAKqWW03F9' : (voiceGenderSelect.value === 'female' ? 'XrExE9yKIg1WjnnlVkGX' : undefined), format: 'mp3' },
         turn_detection: Object.keys(turnDetectionCfg).length ? turnDetectionCfg : undefined,
       },

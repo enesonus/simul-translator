@@ -6,6 +6,7 @@ export interface SessionConfig {
 		source_language?: string; // e.g. "en", "fr", "es"
 	};
 	translation: {
+		provider: "deepl" | "groq"; // e.g. "deepl", "groq"
 		target_language: string;
 		source_language?: string; // Optional, if not provided, auto-detect
 	};
@@ -49,6 +50,7 @@ export function createSessionConfig(
 			silence_duration_ms: 600,
 		},
 		translation: {
+			provider: "deepl",
 			target_language: "en",
 			source_language: undefined, // Auto-detect if not provided
 		},

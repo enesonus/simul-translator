@@ -1,6 +1,5 @@
-import { PassThrough, Readable } from "stream";
-// import { TRANSLATION_PROMPT } from "../prompts/translation-prompt"; // Removed OpenAI prompt
-import * as https from "https"; // Added for DeepL API call
+import OpenAI from "openai";
+import { TRANSLATION_PROMPT } from "../../prompts/translation-prompt";
 
 // import type { ReadableStream as WebReadableStream } from "stream/web";
 
@@ -18,10 +17,24 @@ export interface TranslationRequest {
 
 export class TranslationService {
 	constructor() {
-		console.log("TranslationService initialized to use DeepL API");
+		console.log("TranslationService initialized");
 	}
 
 	async translate(
+		provider: "deepl" | "groq",
+		translationReq: TranslationRequest
+	): Promise<TranslationResult> {
+		switch (provider) {
+			case "deepl":
+				return this.translateWithDeepL(translationReq);
+			case "groq":
+				return this.translateWithGroq(translationReq);
+			default:
+				throw new Error(`Unsupported translation provider: ${provider}`);
+		}
+	}
+
+	private async translateWithDeepL(
 		translationReq: TranslationRequest
 	): Promise<TranslationResult> {
 		console.log(
@@ -38,13 +51,11 @@ export class TranslationService {
 
 		const requestData = {
 			text: [translationReq.text],
-			target_lang: translationReq.targetLanguage.toUpperCase(), // Hardcoded as per request
-			source_lang: translationReq.sourceLanguage?.toUpperCase() || undefined, // Omit if not provided for auto-detection
+			target_lang: translationReq.targetLanguage.toUpperCase(),
+			source_lang: translationReq.sourceLanguage?.toUpperCase() || undefined,
 		};
 
-		const postData = JSON.stringify(requestData);
-
-		const req = await fetch("https://api-free.deepl.com/v2/translate", {
+		const response = await fetch("https://api-free.deepl.com/v2/translate", {
 			method: "POST",
 			headers: {
 				Authorization: `DeepL-Auth-Key ${deeplAuthKey}`,
@@ -53,11 +64,56 @@ export class TranslationService {
 			body: JSON.stringify(requestData),
 		});
 
-		const data = await req.json();
+		const data = await response.json();
 		return {
 			translatedText: data.translations[0].text.trim(),
 			targetLanguage: translationReq.targetLanguage,
-			sourceLanguage: data.translations[0].detected_source_language || translationReq.sourceLanguage
+			sourceLanguage:
+				data.translations[0].detected_source_language ||
+				translationReq.sourceLanguage,
+		};
+	}
+
+	private async translateWithGroq(
+		translationReq: TranslationRequest
+	): Promise<TranslationResult> {
+		console.log(
+			`TranslationService: Translating text to ${translationReq.targetLanguage} (Groq)`
+		);
+
+		const groqApiKey = process.env.GROQ_API_KEY;
+		if (!groqApiKey) {
+			console.error("GROQ_API_KEY environment variable is not set.");
+			throw new Error("GROQ_API_KEY is required for Groq translation.");
+		}
+
+		const client = new OpenAI({
+			baseURL: "https://api.groq.com/openai/v1",
+			apiKey: groqApiKey,
+		});
+
+		const systemPrompt = TRANSLATION_PROMPT.split("{{ LANGUAGE }}").join(
+			translationReq.targetLanguage
+		);
+
+		const { choices } = await client.chat.completions.create({
+			model: "openai/gpt-oss-120b",
+			temperature: 0,
+			reasoning_effort: "low",
+			messages: [
+				{ role: "system", content: systemPrompt },
+				{
+					role: "user",
+					content: translationReq.text,
+				},
+			],
+		});
+
+		const translatedText = (choices?.[0]?.message?.content || "").trim();
+		return {
+			translatedText,
+			targetLanguage: translationReq.targetLanguage,
+			sourceLanguage: translationReq.sourceLanguage || "auto-detect",
 		};
 	}
 }

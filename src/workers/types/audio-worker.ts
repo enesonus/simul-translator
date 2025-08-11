@@ -263,15 +263,21 @@ export class AudioWorker {
 
 			console.time(`Translation_${responseId}`);
 			// 2. Translation
+			const provider = this.session!.config.translation.provider;
 			const sourceLangForDeepL = resolveDeepLSourceLanguage(
 				this.session!.config.translation.source_language,
 				sttResult.language
 			);
-			const translationResult = await this.translationService.translate({
-				text: sttResult.transcription,
-				targetLanguage: this.session!.config.translation.target_language,
-				sourceLanguage: sourceLangForDeepL,
-			});
+			const sourceLanguageForProvider =
+				provider === "deepl" ? sourceLangForDeepL : sttResult.language;
+			const translationResult = await this.translationService.translate(
+				provider,
+				{
+					text: sttResult.transcription,
+					targetLanguage: this.session!.config.translation.target_language,
+					sourceLanguage: sourceLanguageForProvider,
+				}
+			);
 			console.timeEnd(`Translation_${responseId}`);
 			console.log(
 				`AudioWorker (session ${this.session?.id}): Translation Result:`,
