@@ -121,7 +121,7 @@ connectButton.addEventListener('click', () => {
       config: {
         stt_config: { provider: 'groq', model: 'whisper-large-v3', source_language: sourceLangSelect.value || undefined, target_language: undefined },
         translation: { provider: translationProviderSelect?.value || "groq", source_language: sourceLangSelect.value || undefined, target_language: targetLangSelect.value },
-        tts_config: { voice: voiceGenderSelect.value === 'male' ? 'onwK4e9ZLuTAKqWW03F9' : (voiceGenderSelect.value === 'female' ? 'XrExE9yKIg1WjnnlVkGX' : undefined), format: 'mp3' },
+        tts_config: {provider: "deepinfra" , voice: voiceGenderSelect.value === 'male' ? 'onwK4e9ZLuTAKqWW03F9' : (voiceGenderSelect.value === 'female' ? 'XrExE9yKIg1WjnnlVkGX' : undefined), format: 'mp3' },
         turn_detection: Object.keys(turnDetectionCfg).length ? turnDetectionCfg : undefined,
       },
     };

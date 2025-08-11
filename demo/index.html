@@ -45,84 +45,40 @@
         <select id="sourceLangSelect">
             <option value="">Auto Detect</option>
             <option value="EN">English</option>
-            <option value="TR">Turkish</option>
-            <option value="ES">Spanish</option>
-            <option value="AR">Arabic</option>
-            <option value="ZH">Chinese</option>
-            <option value="DE">German</option>
-            <option value="FR">French</option>
-            <option value="IT">Italian</option>
+            <option value="EN-GB">English (UK)</option>
             <option value="JA">Japanese</option>
-            <option value="RU">Russian</option>
-            <option value="KO">Korean</option>
-            <option value="NL">Dutch</option>
-            <option value="PT">Portuguese</option>
-            <option value="VI">Vietnamese</option>
-            <option value="BG">Bulgarian</option>
-            <option value="CS">Czech</option>
-            <option value="DA">Danish</option>
-            <option value="EL">Greek</option>
-            <option value="ET">Estonian</option>
-            <option value="FI">Finnish</option>
-            <option value="HU">Hungarian</option>
-            <option value="ID">Indonesian</option>
-            <option value="LT">Lithuanian</option>
-            <option value="LV">Latvian</option>
-            <option value="NB">Norwegian</option>
-            <option value="PL">Polish</option>
-            <option value="RO">Romanian</option>
-            <option value="SK">Slovak</option>
-            <option value="SL">Slovenian</option>
-            <option value="SV">Swedish</option>
-            <option value="UK">Ukrainian</option>
-        </select>
-    </div>
-    <div>
-        <label for="translationProviderSelect">Translation Provider:</label>
-        <select id="translationProviderSelect">
-            <option value="groq" selected>Groq</option>
-            <option value="deepl">DeepL</option>
+            <option value="ZH">Chinese (Mandarin)</option>
+            <option value="ES">Spanish</option>
+            <option value="FR">French</option>
+            <option value="HI">Hindi</option>
+            <option value="IT">Italian</option>
+            <option value="PT-BR">Portuguese (Brazil)</option>
         </select>
     </div>
     <div>
         <label for="targetLangSelect">Target Language:</label>
         <select id="targetLangSelect" required>
             <option value="EN">English</option>
-            <option value="TR">Turkish</option>
-            <option value="ES">Spanish</option>
-            <option value="AR">Arabic</option>
-            <option value="ZH">Chinese</option>
-            <option value="DE">German</option>
-            <option value="FR">French</option>
-            <option value="IT">Italian</option>
+            <option value="EN-GB">English (UK)</option>
             <option value="JA">Japanese</option>
-            <option value="RU">Russian</option>
-            <option value="KO">Korean</option>
-            <option value="NL">Dutch</option>
-            <option value="PT">Portuguese</option>
-            <option value="VI">Vietnamese</option>
-            <option value="BG">Bulgarian</option>
-            <option value="CS">Czech</option>
-            <option value="DA">Danish</option>
-            <option value="EL">Greek</option>
-            <option value="ET">Estonian</option>
-            <option value="FI">Finnish</option>
-            <option value="HU">Hungarian</option>
-            <option value="ID">Indonesian</option>
-            <option value="LT">Lithuanian</option>
-            <option value="LV">Latvian</option>
-            <option value="NB">Norwegian</option>
-            <option value="PL">Polish</option>
-            <option value="RO">Romanian</option>
-            <option value="SK">Slovak</option>
-            <option value="SL">Slovenian</option>
-            <option value="SV">Swedish</option>
-            <option value="UK">Ukrainian</option>
+            <option value="ZH">Chinese (Mandarin)</option>
+            <option value="ES">Spanish</option>
+            <option value="FR">French</option>
+            <option value="HI">Hindi</option>
+            <option value="IT">Italian</option>
+            <option value="PT-BR">Portuguese (Brazil)</option>
         </select>
     </div>
-    <button id="toggleMoreButton" class="toggle-more">More Input Parameters</button>
+    <button id="toggleMoreButton" class="toggle-more">More Parameters</button>
     <fieldset id="moreParamsSection" class="hidden">
-        <legend>More Input Parameters</legend>
+        <legend>More Parameters</legend>
+        <div>
+            <label for="translationProviderSelect">Translation Provider:</label>
+            <select id="translationProviderSelect">
+                <option value="groq" selected>Groq</option>
+                <option value="deepl">DeepL</option>
+            </select>
+        </div>
         <div>
             <label for="voiceGenderSelect">TTS Voice Gender:</label>
             <select id="voiceGenderSelect">

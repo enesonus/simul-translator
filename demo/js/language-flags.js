@@ -1,5 +1,6 @@
 const langToCountry = {
   AR: 'AE', BG: 'BG', CS: 'CZ', DA: 'DK', DE: 'DE', EL: 'GR', EN: 'GB', 'EN-GB': 'GB', 'EN-US': 'US', ES: 'ES', 'ES-419': 'MX', ET: 'EE', FI: 'FI', FR: 'FR', HE: 'IL', HU: 'HU', ID: 'ID', IT: 'IT', JA: 'JP', KO: 'KR', LT: 'LT', LV: 'LV', NB: 'NO', NL: 'NL', PL: 'PL', PT: 'PT', 'PT-BR': 'BR', 'PT-PT': 'PT', RO: 'RO', RU: 'RU', SK: 'SK', SL: 'SI', SV: 'SE', TH: 'TH', TR: 'TR', UK: 'UA', VI: 'VN', ZH: 'CN', 'ZH-HANS': 'CN', 'ZH-HANT': 'TW',
+  HI: 'IN',
 };
 
 function countryCodeToFlagEmoji(cc) {
