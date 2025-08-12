@@ -128,7 +128,7 @@ export class TTSService {
         const response = await client.audio.speech.create({
             model: "hexgrad/Kokoro-82M",
             voice: selectedVoice,
-            response_format: "mp3",
+            response_format: req.format || "mp3",
             input: req.text,
         });
 
