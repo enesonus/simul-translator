@@ -294,6 +294,7 @@ export class AudioWorker {
 				voice: this.session!.config.tts_config.voice,
 				format: this.session!.config.tts_config.format,
 				text: translationResult.translatedText,
+				targetLanguage: this.session!.config.translation.target_language,
 			});
 			ttsStream.on("data", (chunk: Buffer) => {
 				if (isFirstChunk) {
