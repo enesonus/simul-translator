@@ -142,7 +142,7 @@ connectButton.addEventListener('click', () => {
     } else if (messageData.type === 'response.translation.done') {
       if (translationDisplay) translationDisplay.textContent = messageData.translation || '';
     } else if (messageData.type === 'input_audio_buffer.speech_started') {
-      pcm.reset();
+      // pcm.reset();
     } else if (messageData.type === 'response.error') {
       resetUI();
     }
